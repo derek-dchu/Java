@@ -1,5 +1,5 @@
-/* 
- * Sort a linked list using insertion sort.
+/**
+ * LeetCode OJ: Insertion Sort List
  */
 
 
