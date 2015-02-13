@@ -94,10 +94,25 @@ public String toString();
 
 // 2
 public boolean equals(Object another);
+//compare reference of two objects
+
+// 6
+public int hashCode();
+address
 ```
 
 
-## String pool and intern()  
+## String
+### HashCode
+```
+for each character c in string:
+	hashCode = c + 31 * hashCode
+```
+prime number: evenly distributed
+
+* why choose 31?
+
+### String pool and intern()  
 There is a string pool in stack which contains non-duplicated strings. Those strings will be reused by references. intern() returns canonical copy of string from the string pool. Create a string using new keyword will first create a string in string pool and then copy it to heap to create an String object.
 
 
@@ -361,3 +376,21 @@ I a = new I() {
 ## Lazy-loading
 Abstact class don't have Lazy-loading feature
 
+
+## instanceof vs getClass()
+```java
+class A
+class B extends A
+class C extends B
+
+A a = new C()
+B b = (B) a;
+C c = (C) a;
+
+a instanceof A, B, C // true
+b instanceof A, B, C // true
+c instanceof A, B, C // true
+
+a,b,c getClass() // C
+```
+If an object is `instanceof` of class, that means the object can do either upcasting or downcasting to that class.
