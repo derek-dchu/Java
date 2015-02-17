@@ -1,3 +1,51 @@
+## Variables
+* Instance Variables (Non-Static Fields)
+* Class Variables (Static Fields)
+* Local Variables
+* Parameters
+
+
+## Primitive Data Types
+| Type | Length | Range | Default |  
+|------|--------|-------|---------|   
+| byte | 8-bit | -128 ~ 127 | 0 |  
+| short | 16-bit | -32,768 ~ 32,767 | 0 |  
+| int | 32-bit | -2^31 ~ 2^31-1 | 0 |  
+| long | 64-bit | -2^63 ~ 2^63-1 | 0L |  
+| float | 32-bit | single-precision | 0.0f |  
+| double | 64-bit | double-precision | 0.0d |  
+| boolean | no precisely defined | true/false | false |  
+| char | 16-bit | '\u0000' ~ '\uffff' | '\u0000' |  
+
+***note: local variables never assigned a default value. Accessing an uninitialized local variable will result in compile-time error.***
+
+
+## Arrays
+An array is a container object that holds a fixed number of values of a single type.
+
+### Creating, Initializing
+```java
+// 1
+int[] anArray = new int[10];
+anArray[0] = 100;
+anArray[1] = 200;
+
+// 2
+int [] anArray = {100, 200};
+```
+
+
+## Enum Types
+***note: all enums implicitly extend `java.lang.Enum`, therefore it cannot extend anything else.***
+
+
+## Control Flow
+### `switch` statement
+`switch` works with `byte`, `short`, `char`, `int`, `Enum`, `String`, `Character, `Short, `Byte`, `Integer`.
+
+*note: if expression in any switch statement is `null`, then a `NullPointerException` is thrown.*
+
+
 ## Java file
 ### .java file without file name
 It is valid. It can be compiled and run with inner public class name.
@@ -12,30 +60,26 @@ It runs normally. If a class has the same name as Java file name, it is default 
 * main function can be final.
 
 
-## Constructor vs normal methods
-### Constructor
-* constructor cannot have return type nor return a value. It returns current instance.
-* constructor with a return type will have warning, and the constructor method becomes a normal method.
-* constructor is not inherited.
-* constructor cannot be final.
-* can't use both this() and super() in a constructor
-
-***note: always define the default constructor, because missing it may cause problem in inheritance.***
 
 
-## Modifier
-### Two groups  
-1. Accessibility (Public, Protected, Private)
-2. static, final  
-
-They can be in different order. But we usually put accessibility before static, final.
 
 
-## Encapsulation & Inheritance  
+
+
+
+
+
+
+
+
+
+
+
+## Inheritance & Encapsulation
 ### Inheritance
 Inheritance represents a 'is a' relation.
 
-* Subclass inherit all members(fileds, methods, and nested classes) from its superclass, except private member. However, subclass can has indirect access to all of the private members of its superclass via inherited public or protected methods, nested class.
+* Subclass inherit all members(fields, methods, and nested classes) from its superclass, except private member. However, subclass can has indirect access to all of the private members of its superclass via inherited public or protected methods, nested class.
  
 ### Encapsulation / Composition
 Encapsulation represents a 'has a' (composition) relation.
@@ -43,47 +87,8 @@ Encapsulation represents a 'has a' (composition) relation.
 * composition: holding the reference of the other class within some other class.
 
 
-## Polymorphism: Override vs Overload
-***note: Polymorphism can be applied only for non-static non-private METHODs. It is applied before object creation.***
 
-### Override
-Subclass provides a specific implementation of a method that is already provided by its parent class.
 
-* How to create a valid override
-> method can be defined as follow:  
-> [accessibility][static][final] RT methodName(params) [throws Exception]
-
-	To override method A into method B
-	1. A cannot be static or final
-	2. B & A have same methodName
-	3. B & A have same params
-	4. RT B "is a" RT A
-	5. accessibility B has bigger than or equal to accessibility A
-	6. Exception B "is a" Exception A, and only for checked exception.
-
-	* Covariant return type: method can be override by changing the return type if the return type is subclass type which is a covariant return type (>= Java 5).
-	```java
-	class A {}
-	class B extends A {}
-
-	class C { A getFoo() { return new A(); } }
-	class D extends C {
-		//Overriding getFoo() in father class C
-		B getFoo() { 
-			return new B();
-		}
-	}
-	```
-
-### Overload
-Same function name, same return type, different parameters, in same class.
-
-> A class have methods by same name but different parameters.
-
-* overloaded method can be override.
-
-* Different Parameters: different types, different order, different numbers.  
-* Signature: the method's name and the parameter types.
 
 
 ## Object Class
@@ -127,16 +132,19 @@ If the value p being boxed is `true`, `false`, a `byte`, or a `char` in the rang
 ### Immutable
 value can not be changed.
 
-\#1 How to write an immutable class:
-* class is final
-* all members are final, private
-* only getters, no setters
-* constructors for initialization
+**\#1 How to define an immutable class**:
+* declare class as final OR make the constructor private and construct instances in factory methods
+* all fields are final and private
+* constructor for initialization
+* no setters - methods that modify fields or objects referred to by fields.
+* *!!* If the instance fields include references to mutable objects, don't allow those objects to be changed:
+  1. don't provide methods that modify the mutable objects.
+  2. don't share references to the mutable objects. Never store references to external, mutable objects passed to the constructor if necessary, create copies, and store the references to the copies. Similarly, create copies of your internal mutable objects when necessary to avoid returning the originals in your methods.
 
 Benefits: Immutable object is thread-safe and commonly used in multi-threading environment.
 
 ### Final
-reference can not be changed. But the value can be changed.
+The value of the field cannot change.
 
 ***note: String is both final and immutable.***
 
@@ -176,7 +184,7 @@ reference can not be changed. But the value can be changed.
 closest upper class in the inheritance tree. If there are more than one class available, there will be a compile error.
 
 
-## \#2 clone() vs Cloneable 
+## **\#2 clone() vs Cloneable**
 ```java
 protected Object clone() throws CloneNotSuppertedException
 ```
@@ -221,28 +229,7 @@ interface that have no data member.
 * Serializable, Cloneable, EvetListener, RandomAccess, SingleThreadModel.
 
 
-## static vs Non-static
-static member is class level, which will be loaded in stack (Because class are loaded in stack).
 
-* static method cannot be override.
-
-### static block
-```java
-class HelloWorld {
-	static String str = "Hello World";
-	public static void main(String[] args) {
-		print(str);
-	}
-	static {
-		print(str);
-		str = "Hello Foo";
-	}
-}
-
-//> Hello World
-//> Hello Foo
-```
-static block runs before main(), because static blocks run during loading the class.
 
 
 ## final, finally, finalize
@@ -268,8 +255,6 @@ class A {
 }
 ```
 Only 1 & 2 can be used. A final variable that is not initialized at the time of declaration which can be initialize only in constructor.
-
-***note: Use `static final` to define constant variable. It can only be initialized by assigning a value directly (as 1 above).***
 
 * final object still can change value.
 * final method cannot be override.
@@ -317,47 +302,7 @@ str.getClass() 	// [[S
 Array.getClass() => '[' (array) + 'I' (Base Type)
 
 
-## Inner Class
-* Interface can have inner class, but the inner class has to be public static.
-* Inner class can be extended by outer class, but the outer class has to define constructor.
-```java
-class A { class B {} }
 
-class C extends A.B {
-	C() {
-		new A().super();
-	}
-	C(A a) {
-		a.super();
-	}
-}
-```
-
-### Instantiate an inner class  
-static inner class (nested class): `A.C c = new A.C();`    
-inner class: `A a = new A(); a.B b = a.new B();` or `A.B b = new A().new B();`
-
-### Local Inner class
-inner class within a function.
-
-### Anonymous Inner class
-```java
-inferface I {
-	void foo();
-}
-
-// anonymous inner class
-I a = new I() {
-	@Override
-	public void foo() {
-		//implementation
-	}
-};
-```
-### Compiled class name
-* inner class: `<class>$<inner_class>.class`
-* local inner class: `<class>$<function_num><local_inner_class>.class`
-* anonymous inner class: `<class>$<function_num>.class`
 
 
 ## Garbage Collection
@@ -394,3 +339,31 @@ c instanceof A, B, C // true
 a,b,c getClass() // C
 ```
 If an object is `instanceof` of class, that means the object can do either upcasting or downcasting to that class.
+
+
+## Generics
+Type-safe
+
+Without generics, collection api, some classes, some functions will return Object, so that we need to deal with downcast to proper class. If we use generics, it limits to a specified type, that is why it is type-safe.
+
+Generics is used in collection api, class, function.
+
+### WildCard
+`List<?> list;`
+
+* What is the different between Object and WildCard (?)
+```java
+List<String> list = new ArrayList<String>();
+List<Object> list2 = list;	// compile error
+List<?> list3 = list;		// works
+```
+Because, although `String` is a `Object`, `List<String>` is NOT a `List<Object>`. However, every `List` is a `List<?>`
+
+### extend vs super
+`List<? extend A> list`
+* extend: only subclass
+
+`List<? super A>list`
+* super: itself or superclass
+
+> note: A can be an interface
