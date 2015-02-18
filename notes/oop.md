@@ -16,8 +16,11 @@ A class is the blueprint from which individual objects are created.
 * Fields: state
 * Methods: behavior
 
+### `new` keyword
+Create an object in heap.
+
 ### Object creating procedure
-1. Keep chaining constructors (explicit constructor invocation) within the same class until we reach a constructor body which doesn't start with `this`.
+1. Keep chaining constructors (explicit constructor invoking) within the same class until we reach a constructor body which doesn't start with `this`.
 2. execute superclass constructor (start from step 1 at superclass level).
 3. execute the instance initializers and instance variable initializers for this class in textual order.
 4. execute the rest of the body of constructors
@@ -71,10 +74,10 @@ Subclass provides a specific implementation of a method that is already provided
 	2. B & A have same methodName
 	3. B & A have same params
 	4. RT B "is a" RT A
-	5. B has higher than or equal to accessibility A
+	5. B has higher than or equal to the accessibility of A
 	6. Exception of B "is a" Exception of A, and only for checked exception.
 
-	* Covariant return type: method can be override by changing the return type if the return type is subclass type which is a covariant return type (>= Java 5).
+	* Covariant return type: method can be overridden by changing the return type if the return type is subclass type which is a covariant return type (>= Java 5).
 
 	```java
 	class A {}
@@ -88,13 +91,18 @@ Subclass provides a specific implementation of a method that is already provided
 		}
 	}
 	```
+* Defining a Method with the Same Signature as a Superclass's Method  
+|   | Superclass Instance Method | Superclass Static Method |  
+|---|----------------------------|--------------------------|  
+| Subclass Instance Method | Overrides | compile-time error |  
+| Subclass Static Method | compile-time error |	Hides |  
 
 ### Overload
 In the same class, two methods with same method name, same return type, but different parameter list.
 
 > A class have methods by same name but different parameters.
 
-* overloaded method can be override.
+* overloaded method can be overridden.
 
 * different parameters: different types, different order, different numbers.
 
@@ -102,7 +110,7 @@ In the same class, two methods with same method name, same return type, but diff
 ## static vs Non-static
 static member is class level, which will be loaded in stack (Because class are loaded in stack).
 
-* static method cannot be override.
+* static method cannot be overridden.
 * static method cannot access instance variables or instance methods directly.
 
 ### Static Initialization Block
@@ -125,7 +133,7 @@ Static initialization block runs before main(), because static blocks run during
 
 
 ## Nested Class
-### Static Nested Classed
+### Static Nested Class
 * cannot refer directly to instance variables or methods defined in its enclosing class.
 
 ### Inner Classes
@@ -193,3 +201,125 @@ An anonymous class expression consists:
 ***note: serialization of inner classes, including local and anonymous classes, is strongly discouraged.***
 
 ### Lambda Expressions
+
+
+## Abstract class vs Interface
+| Abstract class | Interface |
+|----------------|-----------|
+| partial implementation | no implementation |
+| single inheritance | multiple inheritance |
+| any fields | only constant<br> default: public static final |
+| any methods | [public abstract] methods<br> default: public abstract |
+| | Lazy-loading feature |
+
+> Why only Interface allow multiple inheritance?  
+> For example, in diamond paradigm, if class allow multiple inheritance, fields or methods may not be resolved (multiple inheritance of state). However, method within interface has to be overridden, therefore there is no resolving problem of interface multiple inheritance (multiple inheritance of type).
+
+### Abstraction
+Abstraction, a process of hiding the implementation details.
+
+#### Abstract class
+An abstract class IS same as other classes besides that it cannot be instantiated using `new` directly.
+
+* Abstract class may not include abstract methods. However, If a class has abstract method, it must be abstract class.
+* Abstract class can have constructor, but it cannot be called using `new` directly. It need to be extended and can call by super.
+* Abstract class can extend other classes.
+
+#### Abstract method
+An abstract method consists of a method signature, but no method body.
+
+* Any child class must either override the abstract method or declare itself abstract.
+
+### Interface
+An interface is a reference type, similar to a class, that can contain only constants, abstract methods, default methods (Java 8), static methods (Java 8), and nested types.
+
+* cannot be instantiated - can only be implemented by classes or extends by other interfaces.
+* the only methods that have implementations are default and static methods.
+* static methods in interfaces are never inherited.
+
+#### Default Methods (Java 8)
+Default methods are new functionality added to the interfaces that have the binary compatibility with code written for older versions of those interfaces.
+
+#### Marker interfaces
+Interfaces that have no data member.
+* Serializable, Cloneable, EvetListener, RandomAccess, SingleThreadModel.
+
+
+## Inheritance & Encapsulation
+### Inheritance
+Inheritance represents a 'is a' relation.
+
+* Subclass inherit all members(fields, methods, and nested classes) from its superclass, except private members. However, subclass can has indirect access to all of the private members of its superclass via inherited public or protected methods, public or protected nested class.
+ 
+### Encapsulation / Composition
+Encapsulation represents a 'has a' (composition) relation.
+
+* composition: holding the reference of the other class within some other class.
+
+
+## Reflection
+```java
+public final Class<?> getClass();
+
+class A { f() }
+class B extends A { g() }
+class C extends B { h() }
+
+A a = new C();
+B b = (B) a;
+C c = (C) a;
+
+a.getClass() // C
+b.getClass() // C
+c.getClass() // C
+```
+```
+a.f() √ a.g() X a.h() X  
+b.f() √ b.g() √ b.h() X  
+c.f() √ c.g() √ c.h() √ 
+```
+
+### getClass()
+```java
+int[] a;
+a.getClass()	// [I
+String[][] str;
+str.getClass() 	// [[S
+```
+Array.getClass() => '[' (array) + 'I' (Base Type)
+
+
+## The `Object` class
+* `protected Object clone() throws CloneNotSupportedException`  
+Creates and returns a copy of this object.
+
+* `public boolean equals(Object obj)`  
+Indicates whether some other object is "equal to" this one.
+
+	* If we override `equals()`, we must override `hashCode()` as well.
+
+* `protected void finalize() throws Throwable`  
+  Called by the garbage collector on an object when garbage collection determines that there are no more references to the object
+
+* `public final Class getClass()`  
+  Returns the runtime class of an object.
+
+  * cannot be overridden.
+
+* `public int hashCode()`  
+  Returns a hash code value for the object.
+
+* `public String toString()`  
+  Returns a string representation of the object.
+
+### \#2 clone() vs Cloneable
+```java
+protected Object clone() throws CloneNotSuppertedException
+```
+
+To use clone(), a class has to implement Cloneable, or it throws CloneNotSuppertedException.
+
+* Why Object.clone() is protected?
+The method is protected because we shouldn't call it on Object, we can (and should) override it as public.
+* Why we have to use `super.clone()` instead of `this.clone()` in override?
+Because if we use this.clone(), it will end up with a infinity loop.
