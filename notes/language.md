@@ -17,7 +17,7 @@
 | boolean | no precisely defined | true/false | false |  
 | char | 16-bit | '\u0000' ~ '\uffff' | '\u0000' |  
 
-***note: local variables never assigned a default value. Accessing an uninitialized local variable will result in compile-time error.***
+**Note:** local variables never assigned a default value. Accessing an uninitialized local variable will result in compile-time error.
 
 
 ## Arrays
@@ -36,103 +36,144 @@ int [] anArray = {100, 200};
 
 
 ## Enum Types
-***note: all enums implicitly extend `java.lang.Enum`, therefore it cannot extend anything else.***
+**Note:** all enums implicitly extend `java.lang.Enum`, therefore it cannot extend anything else.
 
 
 ## Control Flow
 ### `switch` statement
 `switch` works with `byte`, `short`, `char`, `int`, `Enum`, `String`, `Character, `Short, `Byte`, `Integer`.
 
-*note: if expression in any switch statement is `null`, then a `NullPointerException` is thrown.*
+**Note:** if expression in any switch statement is `null`, then a `NullPointerException` is thrown.
 
 
-## Java file
-### .java file without file name
-It is valid. It can be compiled and run with inner public class name.
-
-### Java file without a public class
-It runs normally. If a class has the same name as Java file name, it is default to be public.
+## `Number` Class
+An final and immutable wrapper classes for each of the numeric primitive data types.
 
 
-## Main Function 
-* without public or static: Runtime error.
-* main function can be overloaded.
-* main function can be final.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Inheritance & Encapsulation
-### Inheritance
-Inheritance represents a 'is a' relation.
-
-* Subclass inherit all members(fields, methods, and nested classes) from its superclass, except private member. However, subclass can has indirect access to all of the private members of its superclass via inherited public or protected methods, nested class.
- 
-### Encapsulation / Composition
-Encapsulation represents a 'has a' (composition) relation.
-
-* composition: holding the reference of the other class within some other class.
-
-
-
-
-
-
-## Object Class
-* It is the superclass for every class
-```java
-// 1
-public String toString();
-
-// 2
-public boolean equals(Object another);
-//compare reference of two objects
-
-// 6
-public int hashCode();
-address
-```
+## `Character` Class
+An final and immutable wrapper class for `char`.
 
 
 ## String
+**Note:** String is both final and immutable.
+
+* String implements `CharSequence`.
+
 ### HashCode
 ```
 for each character c in string:
 	hashCode = c + 31 * hashCode
 ```
-prime number: evenly distributed
 
 * why choose 31?
+  1. prime number: evenly distributed
 
 ### String pool and intern()  
-There is a string pool in stack which contains non-duplicated strings. Those strings will be reused by references. intern() returns canonical copy of string from the string pool. Create a string using new keyword will first create a string in string pool and then copy it to heap to create an String object.
+There is a string pool in stack which contains non-duplicated strings. Those strings will be reused by references. `intern()` returns canonical copy of string from the string pool. Create a string using new keyword will firstly create a string in string pool and then copy it into heap to create an String object.
+
+### String vs StringBuffer vs StringBuilder  
+* String is immutable.  
+* StringBuffer, StringBuilder are mutable.  
+* StringBuffer is thread-safe.  
+* StringBuilder (Java 5) is not thread-safe which has better performance.
+
+> **Note:** thread-safe means only one thread can access the class at a time.
 
 
 ## Constant pool
 If the value p being boxed is `true`, `false`, a `byte`, or a `char` in the range `\u0000` to `\u007f`, or an `int` or `short` number between `-128` and `127` (inclusive), then let `r1` and `r2` be the results of any two boxing conversions of p. It is always the case that `r1 == r2`.
 
-11. New keyword  
-	Create new object in heap.
+
+## Autoboxing vs Unboxing
+### Autoboxing (Java 5)
+Automatic conversion from primitive type to corresponding wrapper class.
+
+```java
+Integer x = 10; int y = x;
+
+List<Integer> li = new ArrayList<>();
+li.add(10);
+```
+
+* Passed as a parameter to a method that expects an object of the corresponding wrapper class.
+* Assigned to a variable of the corresponding wrapper class.
+
+### Unboxing
+reverse operation of autoboxing.
+
+
+## Generics
+Generics enable `types` (classes and interface) to be parameters when defining classes, interfaces and methods. It is used in collection api, class, function.
+
+> Without generics, collection api, some classes, some functions will return Object, so that we need to downcast to proper class. If we use generics, it limits to a specified type, that is why it is type-safe.
+
+* Stronger type checks at compile time. (Type safe)
+* Elimination of casts.
+* generic algorithms.
+
+### Generic Methods
+Methods that introduce their own type parameters.
+
+* For static generic method, the type parameter section must appear before the method's return type.
+
+```java
+public staic <K, V> boolean compare(Pair<K, V> p1, Pair<K, V> p2) { /* ... */ }
+```
+
+### Multiple Bounds
+* class must be specified first.
+
+```java
+Class A { /* ... */ }
+interface B { /* ... */ }
+interface C { /* ... */ }
+
+class D <T extends A & B & C> { /* ... */ }
+
+class E <T extends B & A & C> { /* ... */ }  // compile-time error
+```
+
+### WildCard
+It represents an unknown type.
+
+* What is the different between Object and WildCard (?)
+
+```java
+List<String> list = new ArrayList<String>();
+List<Object> list2 = list;	// compile error
+List<?> list3 = list;		// works
+```
+Because, although `String` is a `Object`, `List<String>` is NOT a `List<Object>`. However, every `List` is a `List<?>`
+
+### `extends` vs `super`
+`List<? extends A> list`
+* extend: itself and subclass
+
+`List<? super A>list`
+* super: itself and superclass
+
+> **Note:** A can be an interface
+
+### Wildcard Guidelines: 
+`method(in, out)`
+
+* "in": `extends`.
+* "out": `super`.
+* In the case where the "in" variable can be accessed using methods defined in the Object class, use an unbounded wildcard.
+* In the case where the code needs to access the variable as both an "in" and an "out" variable, do not use a wildcard.
+
+### Type Erasure
+Instead of creating new classes
+* replace all type parameters.
+* insert type casts.
+* generate bridge methods.
 
 
 ## Immutable vs Final 
 ### Immutable
 value can not be changed.
 
-**\#1 How to define an immutable class**:
+**\#1 How to define an immutable class:**
 * declare class as final OR make the constructor private and construct instances in factory methods
 * all fields are final and private
 * constructor for initialization
@@ -145,25 +186,6 @@ Benefits: Immutable object is thread-safe and commonly used in multi-threading e
 
 ### Final
 The value of the field cannot change.
-
-***note: String is both final and immutable.***
-
-
-## String vs StringBuffer vs StringBuilder  
-* String is immutable.  
-* StringBuffer, StringBuilder are mutable.  
-* StringBuffer is thread-safe.  
-* StringBuilder (Java 5) is not thread-safe which has better performance.
-
-> note: thread-safe means only one thread can access the class at a time.
-
-
-## Boxing vs Autoboxing  
-* primitive type & wrapper class  
-* boxing: convert primitive type to wrapper class object
-* autoboxing (Java 5): 'Integer x = 10; int y = x;'
-
-***note: all wrapper classes are immutable.***
 
 
 ## Upcast vs Downcast
@@ -184,52 +206,22 @@ The value of the field cannot change.
 closest upper class in the inheritance tree. If there are more than one class available, there will be a compile error.
 
 
-## **\#2 clone() vs Cloneable**
-```java
-protected Object clone() throws CloneNotSuppertedException
-```
+## Java file
+### .java file without file name
+It is valid. It can be compiled and run with inner public class name.
 
-To use clone(), a class has to implement Cloneable, or it throws CloneNotSuppertedException.
-
-* Why Object.clone() is protected?
-The method is protected because we shouldn't call it on Object, we can (and should) override it as public.
+### Java file without a public class
+It runs normally. If a class has the same name as Java file name, it is default to be public.
 
 
-## Abstract class vs Interface
-| Abstract class | Interface |
-|----------------|-----------|
-| partial implementation | no implementation |
-| single inheritance | multiple inheritance |
-| any fields | [public static final] fields<br> default: public static final |
-| any methods | [public abstract] methods<br> default: public abstract |
-| | Lazy-loading feature |
+## Main Function 
+* without public or static: Runtime error.
+* main function can be overloaded.
+* main function can be final.
 
-> Why only Interface allow multiple inheritance?  
-> For example, in diamond paradigm, if class allow multiple inheritance, method cannot be resolved. However, method within interface has to be override, therefore there is no resolving problem of interface multiple inheritance.
-
-### Abstraction
-Abstraction, a process of hiding the implementation details.
-
-#### Abstract class
-An abstract class IS same as other classes besides that it cannot be instantiated using `new` directly.
-
-* Abstract class don't need to have abstract method. However, If a class has abstract method, it must be abstract class.
-* Abstract class can have constructor, but it cannot be called using `new` directly. It need to be extended and can call by super.
-* Abstract class can extend other classes.
-
-#### Abstract method
-An abstract method consists of a method signature, but no method body.
-
-* Any child class must either override the abstract method or declare itself abstract.
-
-### Interface
-
-#### Marker interfaces
-interface that have no data member.
-* Serializable, Cloneable, EvetListener, RandomAccess, SingleThreadModel.
-
-
-
+## Import
+* package/class can imported multiple times but JVM will load only once.
+* static import: access static method without qualify it by the class name.
 
 
 ## final, finally, finalize
@@ -264,45 +256,7 @@ Only 1 & 2 can be used. A final variable that is not initialized at the time of 
 * finally block will not be executed if program exits (`system.exit()` or fatal error)
 
 ### finalize()
-```java
-protected void finalize();
-```
-It will be called garbage collection, which performs like a destructor in C++. It can be override.
-
-
-## Reflection
-```java
-public final Class<?> getClass();
-
-class A { f() }
-class B extends A { g() }
-class C extends B { h() }
-
-A a = new C();
-B b = (B) a;
-C c = (C) a;
-
-a.getClass() // C
-b.getClass() // C
-c.getClass() // C
-```
-```
-a.f() √ a.g() X a.h() X  
-b.f() √ b.g() √ b.h() X  
-c.f() √ c.g() √ c.h() √ 
-```
-
-### getClass()
-```java
-int[] a;
-a.getClass()	// [I
-String[][] str;
-str.getClass() 	// [[S
-```
-Array.getClass() => '[' (array) + 'I' (Base Type)
-
-
-
+A callback method that may be invoked by garbage collection, which performs like a destructor in C++. It can be override.
 
 
 ## Garbage Collection
@@ -310,16 +264,12 @@ Array.getClass() => '[' (array) + 'I' (Base Type)
 `System.gc();`
 `Runtime.getRuntime().gc();`
 
+
 ## Multi-threading
 
 
-## Import
-* package/class can imported multiple times but JVM will load only once.
-* static import: access static method without qualify it by the class name.
-
-
 ## Lazy-loading
-Abstact class don't have Lazy-loading feature
+Abstract class don't have Lazy-loading feature
 
 
 ## instanceof vs getClass()
@@ -341,29 +291,3 @@ a,b,c getClass() // C
 If an object is `instanceof` of class, that means the object can do either upcasting or downcasting to that class.
 
 
-## Generics
-Type-safe
-
-Without generics, collection api, some classes, some functions will return Object, so that we need to deal with downcast to proper class. If we use generics, it limits to a specified type, that is why it is type-safe.
-
-Generics is used in collection api, class, function.
-
-### WildCard
-`List<?> list;`
-
-* What is the different between Object and WildCard (?)
-```java
-List<String> list = new ArrayList<String>();
-List<Object> list2 = list;	// compile error
-List<?> list3 = list;		// works
-```
-Because, although `String` is a `Object`, `List<String>` is NOT a `List<Object>`. However, every `List` is a `List<?>`
-
-### extend vs super
-`List<? extend A> list`
-* extend: only subclass
-
-`List<? super A>list`
-* super: itself or superclass
-
-> note: A can be an interface
