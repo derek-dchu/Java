@@ -9,7 +9,7 @@ A class is the blueprint from which individual objects are created.
 * constructor cannot be final.
 * cannot use both this() and super() in a constructor
 
-***note: always define the default constructor, because missing it may cause problem in inheritance.***
+***note: always define the default constructor, because missing it may cause problem in inheritance, serialization.***
 
 
 ## Object
@@ -20,7 +20,7 @@ A class is the blueprint from which individual objects are created.
 Create an object in heap.
 
 ### Object creating procedure
-1. Keep chaining constructors (explicit constructor invoking) within the same class until we reach a constructor body which doesn't start with `this`.
+1. Keep chaining constructors (explicit constructor invocation) within the same class until we reach a constructor body which doesn't start with `this`.
 2. execute superclass constructor (start from step 1 at superclass level).
 3. execute the instance initializers and instance variable initializers for this class in textual order.
 4. execute the rest of the body of constructors
@@ -75,7 +75,7 @@ Subclass provides a specific implementation of a method that is already provided
 	3. B & A have same params
 	4. RT B "is a" RT A
 	5. B has higher than or equal to the accessibility of A
-	6. Exception of B "is a" Exception of A, and only for checked exception.
+	6. Exception of B "is a" Exception of A, and only for checked exception, or B doesn't throw exception (ExceptionB is null)
 
 	* Covariant return type: method can be overridden by changing the return type if the return type is subclass type which is a covariant return type (>= Java 5).
 
@@ -105,6 +105,28 @@ In the same class, two methods with same method name, same return type, but diff
 * overloaded method can be overridden.
 
 * different parameters: different types, different order, different numbers.
+
+### Runtime (Dynamic) Polymorphism vs Compile-time (Static) Polymorphism
+* Override is Runtime Polymorphism
+* Overload is Compile-time Polymorphism
+
+```java
+class A {
+	void process() throws Exception() {
+		throw new Exception();
+	}
+}
+class B extends A {
+	void process() {
+		System.out.println("B");
+	}
+}
+public static void main(String[] args) {
+	A a = new B();
+	a.process();
+}
+```
+Above code results a compile-time error. Because A.process() will only be overridden by B.process() at runtime. During compile time, compiler is still checking A.process() which throws an exception and doesn't handle or re-throw by main(). If the main() also throws an exception, it will print "B".
 
 
 ## static vs Non-static
@@ -141,7 +163,6 @@ non-static nested classes.
 
 * cannot define any static members itself.
 * it has direct access to the methods and fields of its enclosing instance.
-* Interface can have inner class, but the inner class has to be public static.
 * Inner class can be extended by outer class, but the outer class has to define constructor.
 
 ```java
@@ -236,13 +257,14 @@ An interface is a reference type, similar to a class, that can contain only cons
 * cannot be instantiated - can only be implemented by classes or extends by other interfaces.
 * the only methods that have implementations are default and static methods.
 * static methods in interfaces are never inherited.
+* Interface can have nested class, but the nested class has to be public static.
 
 #### Default Methods (Java 8)
 Default methods are new functionality added to the interfaces that have the binary compatibility with code written for older versions of those interfaces.
 
 #### Marker interfaces
 Interfaces that have no data member.
-* Serializable, Cloneable, EvetListener, RandomAccess, SingleThreadModel.
+* Serializable, Cloneable, EventListener, RandomAccess, SingleThreadModel.
 
 
 ## Inheritance & Encapsulation
@@ -323,3 +345,61 @@ To use clone(), a class has to implement Cloneable, or it throws CloneNotSuppert
 The method is protected because we shouldn't call it on Object, we can (and should) override it as public.
 * Why we have to use `super.clone()` instead of `this.clone()` in override?
 Because if we use this.clone(), it will end up with a infinity loop.
+
+
+## Loose Coupling (decouple data and logic)
+Big problem of OOP --> Coupling (inherite bugs)
+
+### Old design
+```java
+class A {
+	private int x;
+	...
+
+	public void foo1() {
+		...
+	}
+
+	public void foo2() {
+		...
+	}
+}
+
+class B extends A {
+	private double d;
+	...
+
+	@Override
+	public void foo1() {
+		...
+	}
+}
+
+class C extends A {}
+```
+
+Problems of above code:
+1. Coupling: if we have bugs in foo2(), both B and C will have the same bugs.
+2. Multi-threading: race condition.
+
+### Loose coupling design
+```java
+// Data bean
+class A {
+	private int x;
+	...
+
+	/* getters and setters */
+}
+
+class B extends A {}
+
+// Logical bean
+class AUtil {
+	public void foo1(A a) {}
+	public void foo2(A a) {}
+}
+```
+Benefits:
+1. Decoupling data and logic. Data bean is always bug free.
+2. No share resource => less problem in multi-threading environment.
