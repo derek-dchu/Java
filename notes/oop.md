@@ -6,7 +6,8 @@ A class is the blueprint from which individual objects are created.
 * constructor cannot have return type nor return a value. It returns current instance.
 * constructor with a return type will have warning, and the constructor method becomes a normal method.
 * constructor is not inherited.
-* constructor cannot be final.
+* constructor cannot be `final`.
+* constructor cannot be `synchronized`.
 * cannot use both this() and super() in a constructor
 
 ***note: always define the default constructor, because missing it may cause problem in inheritance, serialization.***
@@ -207,8 +208,9 @@ An anonymous class expression consists:
 3. invocation of constructor
 4. a class declaration body
 
-* cannot access local variables in its enclosing scope that are not declared as `final` or effectively final.
 * cannot declare constructors.
+* cannot access local variables in its enclosing scope that are not declared as `final` or effectively final.
+
 
 ### Instantiate an nested class  
 * static nested class: `A.C c = new A.C();`    
@@ -327,6 +329,7 @@ Indicates whether some other object is "equal to" this one.
   Returns the runtime class of an object.
 
   * cannot be overridden.
+  * it returns <a class>.class. e.g. `String.class == "abc".getClass()`.
 
 * `public int hashCode()`  
   Returns a hash code value for the object.
