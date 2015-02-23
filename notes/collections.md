@@ -100,15 +100,47 @@ Because reading is much faster writing, in other words, r/w : 1/n is worst than 
 
 ## Queue
 Two forms of methods:
+
 | Type of Operation | Throws exception | Returns special value |  
 |-------------------|------------------|-----------------------|
 | Insert | add(e) |	offer(e) |  
 | Remove | remove()	| poll() |  
 | Examine | element() |	peek() |  
 
+* generally no `null` elements.
+* same `equals()` and `hasCode()` as `Object`.
 
 
-## Set vs Map
+## Deque
+Two forms of methods:
+
+| Type of Operation | Throws exception | Returns special value |  
+|-------------------|------------------|-----------------------|  
+| Insert | addFirst(e)<br>addLast(e) | offerFirst(e)<br>offerLast(e) |  
+| Remove | removeFirst()<br>removeLast() | pollFirst()<br>pollLast() |  
+| Examine | getFirst()<br>getLast() | peekFirst()<br>peekLast() |  
+
+* with additional: `removeFirstOccurence()` and `removeLastOccurence()`, that remove the specified element and return `true` if the element exists or `false` and remains the `Deque` unchanged.
+
+
+## Map
+* no duplicate keys, each key can map to at most on value.
+
+### TreeMap
+sorted key.
+
+### HashMap vs Hashtable vs ConcurrentHashMap (Java 5)
+|   | HashMap | Hashtable | ConcurrentHashMap |  
+|---|---------|-----------|-------------------|  
+| Thread-safe | No | Yes | Yes |  
+| Performance | Best | Worst | Good |  
+| Allows null key<br> (only one) | Yes | No | No |  
+| Iterator | fail-fast | fail-fast | fail-safe |  
+
+* Why ConcurrentHashMap has better performance than Hashtable.
+Because Hashtable is one lock for entire table, while concurrentHashMap has 16 blocks, each of which has a lock.
+
+### Set vs Map
 keySet of a Map is the same type of Set
 * HashMap.keySet() -> HashSet
 * LinkedHashMap.keySet() -> LinkedHashSet
@@ -123,21 +155,6 @@ map.put(K, V)
 V value = map.getValue(Key);
 ```
 
-### TreeMap
-sorted key.
-
-
-## HashMap vs Hashtable vs ConcurrentHashMap (Java 5)
-|   | HashMap | Hashtable | ConcurrentHashMap |  
-|---|---------|-----------|-------------------|  
-| Thread-safe | No | Yes | Yes |  
-| Performance | Best | Worst | Good |  
-| Allows null key<br> (only one) | Yes | No | No |  
-| Iterator | fail-fast | fail-fast | fail-safe |  
-
-* Why ConcurrentHashMap has better performance than Hashtable.
-Because Hashtable is one lock for entire table, while concurrentHashMap has 16 blocks, each of which has a lock.
-
 
 ## Comparator vs Comparable (#4)
 ```java
@@ -150,13 +167,13 @@ public interface COmparator<V> {
 }
 ```
 
+***note: String is Comparable.***
+
 ### Collections.sort
 ```java
 public static <T extends Comparable<? super T>> sort(List<T> list)
 ```
 To use the Collections.sort, a class has to implement Comparable.
-
-***note: String is Comparable.***
 
 ### Collections.shuffle
 ```java
@@ -166,6 +183,19 @@ public static void shuffle(List<?> list, Random rnd) {
 	}
 }
 ```
+
+## SortedSet
+SortedSet inherits from Set.
+
+1. iterator traverse in order.
+2. `toArray` contains sorted elements.
+
+### Range View Operation
+Different to list`s range-view, changes to the range-view write back to the backing sorted set and vice versa.
+
+
+## SortedMap
+### Range View Operation
 
 
 ## Iterator vs Enumeration
@@ -212,7 +242,7 @@ public interface Enumeration<V> {
 ```
 
 ### How to convert non-thread-safe Collection to thread-safe.
-{NAME}	synchronized{NAME} (NAME collection);
+`{NAME}	synchronized{NAME} (NAME collection);`  
 NAME: Collection, List, Set, Map, SortedSet, SortedMap
 
 ```java
@@ -225,7 +255,7 @@ list != list2
 **note:** synchronizedList is still better than vector, because synchronized verison allows multi-thread reading. Vector only allows single thread access.
 
 ### How to make a collection read-only
-{NAME} unmodifiable{NAME} (NAME collection);
+`{NAME} unmodifiable{NAME} (NAME collection);`  
 NAME: Collection, List, Set, Map, SortedSet, SortedMap
 
 
