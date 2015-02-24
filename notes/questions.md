@@ -67,14 +67,16 @@ class B extends A {
 }
 
 A a = new B();
-print(a.getName()); // null
+a.getName(); // null
 ```
 1. A.name = null 
 2. A call B.init() -> B.name = "B"
 !! But no B yet
-3. B start initialize B.name = null
+3. B start to initialize B.name = null
 B is created with B.name = null
 
+## The `Object` Class
+### 1. Fina a pair of string s1, s2 that `s1.hashCode() == s2.hashCode()`, but `s1.equals(s2) == false` 
 
 
 ## String
@@ -227,3 +229,58 @@ A a = new B();
 // A 			(create A)
 // B 			(create B)
 ```
+
+## Collection
+### 1. Print out a linked list in reverse order
+
+### 2. Find the entry of the loop within a linked list
+
+### 3. Use stack to build a queue
+Use two stacks, inStack & outStack. input -> inStack -> outStack -> output.
+
+### 4. Print a map in the order of value
+```java
+void printMap(Map<String, Integer> map) {
+	
+}
+```
+
+### 5. Implement shuffling functionality
+```
+int n = n.length;
+Random rnd = new Random();
+for (int i=n; i>1; i--)
+	swap(list, i-1, rnd.nextInt(i));
+```
+
+### 6. Poker Game
+Order:
+1. SPADE: A K Q J 10 ... 2
+2. HEART: 
+3. DIAMOND:
+4. CLUB:
+
+Separate cards and display to 4 players.
+
+TODO:
+1. Use Enum type
+2. Override toString for A K Q J
+3. How to compare cards
+
+### 7. Write a person class with one field (name), which can be insert into TreeSet.
+
+
+## Multi-threading
+1. write a multi-threading program to compute `x*y / (x+y)`.
+
+
+## {2,3,5} 72 output, 2,3,5 based.
+for (int i = 0; i < 72; i++) {
+	x = i;
+	fint = x % 2;
+	x /= 2;
+	secint = x % 3;
+	x /= 3;
+	thrint = x % 5;
+	x /= 5;
+}
