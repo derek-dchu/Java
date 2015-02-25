@@ -41,7 +41,7 @@ int [] anArray = {100, 200};
 
 ## Control Flow
 ### `switch` statement
-`switch` works with `byte`, `short`, `char`, `int`, `Enum`, `String`, `Character, `Short, `Byte`, `Integer`.
+`switch` works with `byte`, `short`, `char`, `int`, `Enum`, `String` (Java 7), `Character, `Short, `Byte`, `Integer`.
 
 **Note:** if expression in any switch statement is `null`, then a `NullPointerException` is thrown.
 
@@ -55,7 +55,7 @@ An final and immutable wrapper class for `char`.
 
 
 ## String
-**Note:** String is both final and immutable.
+**Note:** String is final, immutable, compareable, serializable.
 
 * String implements `CharSequence`.
 
@@ -77,7 +77,9 @@ There is a string pool in stack which contains non-duplicated strings. Those str
 * StringBuffer is thread-safe.  
 * StringBuilder (Java 5) is not thread-safe which has better performance.
 
-> **Note:** thread-safe means only one thread can access the class at a time.
+> **Note:** thread-safe means:
+>    1. the class is thread-safe: only one thread can access that class at a time.
+>    2. the program is thread-safe: return consistence output.
 
 
 ## Constant pool
@@ -107,7 +109,7 @@ Generics enable `types` (classes and interface) to be parameters when defining c
 
 > Without generics, collection api, some classes, some functions will return Object, so that we need to downcast to proper class. If we use generics, it limits to a specified type, that is why it is type-safe.
 
-* Stronger type checks at compile time. (Type safe)
+* Stronger type checks at compile time (Type safe), thus reducing errors at runtime.
 * Elimination of casts.
 * generic algorithms.
 
@@ -152,7 +154,7 @@ Because, although `String` is a `Object`, `List<String>` is NOT a `List<Object>`
 `List<? super A>list`
 * super: itself and superclass
 
-> **Note:** A can be an interface
+> **Note:** class A can be an interface
 
 ### Wildcard Guidelines: 
 `method(in, out)`
@@ -173,14 +175,14 @@ Instead of creating new classes
 ### Immutable
 value can not be changed.
 
-**\#1 How to define an immutable class:**
+** (#1) How to define an immutable class:**
 * declare class as final OR make the constructor private and construct instances in factory methods
-* all fields are final and private
+* all fields are `private` and `final`
 * constructor for initialization
 * no setters - methods that modify fields or objects referred to by fields.
 * *!!* If the instance fields include references to mutable objects, don't allow those objects to be changed:
   1. don't provide methods that modify the mutable objects.
-  2. don't share references to the mutable objects. Never store references to external, mutable objects passed to the constructor if necessary, create copies, and store the references to the copies. Similarly, create copies of your internal mutable objects when necessary to avoid returning the originals in your methods.
+  2. don't share references to the mutable objects. Never store references to external, create copies in constructor. Similarly, create copies of your internal mutable objects in getter.
 
 Benefits: Immutable object is thread-safe and commonly used in multi-threading environment.
 
@@ -253,16 +255,24 @@ Only 1 & 2 can be used. A final variable that is not initialized at the time of 
 * final class cannot be inherited.
 
 ### finally
-* finally block will not be executed if program exits (`system.exit()` or fatal error)
+* finally block will not be executed if program exits `system.exit()` or fatal error (e.g. OutOfMemoryError).
 
 ### finalize()
 A callback method that may be invoked by garbage collection, which performs like a destructor in C++. It can be override.
 
 
 ## Garbage Collection
+A separate thread with the lowest priority.
+
 * How to invoke garbage collection
-`System.gc();`
-`Runtime.getRuntime().gc();`
+  1. `System.gc();`
+  2. `Runtime.getRuntime().gc();`
+* A lost reference might be obtained back.
+
+### When an object becomes eligible for Garbage Collection
+1. If it is not reachable from any live thread.
+2. If it is not reachable by any strong reference.
+3. Cyclic dependencies are not counted as reference. e.g. A -> B, B -> A, both A and B are eligible.
 
 
 ## Multi-threading
@@ -289,5 +299,42 @@ c instanceof A, B, C // true
 a,b,c getClass() // C
 ```
 If an object is `instanceof` of class, that means the object can do either upcasting or downcasting to that class.
+
+
+## Serialiable
+### What is a serialiable object?
+A serialiable object can be converted into a binary string, so that it can be transfered via Internet or saved to a file.
+
+### Serialization vs Deserialization
+Serialization: convert a serialiable object into abinary string.
+
+* For an class, each level of fields need to be serializable (regarding `transient`) to perform serialization.
+* For an class, it has at less one superclass that is serializable to perform serialization.
+
+Deserialization: convert the binary string back to an object.
+
+* Deserialzation will construct the object directly without calling its constructor. However, if the class is subclass, then it will call constructors of its superclass which are not serializable.
+
+### What is the purpose of `SerialVersionUID`?
+It is a `private static final long` variable. It is a class uuid that generates serialization and deserialization perform on the same class.
+
+### `transient` keyword
+Make a field non-serialiable in a serialiable class.
+
+* We can put `transient` in any class.
+* We can put `transient` in any field.
+* Statics cannot be serialize, because it is implicitly `transient`.
+
+### Create a deep copy using serializable
+**note:** If an object implements serializable at each level, then deep copy of the object can be made via serializable.
+
+
+## Externalizable
+It is a subinferface of Serialiable which contains two methods: `readExternal()`, `writeExternal()`.
+
+Add customization to serialization. (e.g. encryption)
+
+* `transient` has no effect in externalizable object.
+* externalizable class will call default constructor to deserialize.
 
 
