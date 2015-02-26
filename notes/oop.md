@@ -274,6 +274,7 @@ Interfaces that have no data member.
 Inheritance represents a 'is a' relation.
 
 * Subclass inherit all members(fields, methods, and nested classes) from its superclass, except private members. However, subclass can has indirect access to all of the private members of its superclass via inherited public or protected methods, public or protected nested class.
+* A class with only private constructor cannot be inherited.
  
 ### Encapsulation / Composition
 Encapsulation represents a 'has a' (composition) relation.
@@ -323,7 +324,7 @@ Indicates whether some other object is "equal to" this one.
 	* If we override `equals()`, we must override `hashCode()` as well.
 
 * `protected void finalize() throws Throwable`  
-  Called by the garbage collector on an object when garbage collection determines that there are no more references to the object
+  Called by the garbage collector on an object when garbage collection determines to reclaim memory of the object.
 
 * `public final Class getClass()`  
   Returns the runtime class of an object.
@@ -337,7 +338,7 @@ Indicates whether some other object is "equal to" this one.
 * `public String toString()`  
   Returns a string representation of the object.
 
-### \#2 clone() vs Cloneable
+### clone() vs Cloneable (#2)
 ```java
 protected Object clone() throws CloneNotSuppertedException
 ```
