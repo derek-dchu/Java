@@ -231,7 +231,9 @@ for (LIstIterator<Type> it = list.Iterator(list.size()); it.hasPrevious(); ) {
 ```
 
 #### fail-fast Iterator
+If the collection is structurally modified at any time after the iterator is created, in any way except through the iterator's own methods, the iterator will throw a `ConcurrentModificationException`.
 
+**Note:** fail-fast behavior of an iterator cannot be guaranteed. This behavior *should be used only to detect bugs*.
 
 ### Enumeration
 ```
