@@ -42,7 +42,7 @@ void setName(String fn, String ln);
 void setName(String ln, String fn);
 // a & b : override
 
-### 2. When any Where Polymorphism Applied.
+### 2. When and Where Polymorphism Applied.
 ```java
 class A {
 	protected String name = null;
@@ -74,6 +74,7 @@ a.getName(); // null
 !! But no B yet
 3. B start to initialize B.name = null
 B is created with B.name = null
+
 
 ## The `Object` Class
 ### 1. Fina a pair of string s1, s2 that `s1.hashCode() == s2.hashCode()`, but `s1.equals(s2) == false` 
@@ -176,20 +177,20 @@ int x = 0;
 if (x) {} // compile error: incompatible types.
 ```
 
-## Garage collection
-### 1. Create an object that can not be garage collected
+## Garbage collection
+### 1. Create an object that can not be garbage collected
 ```java
 class A {
 	static final Object obj = ... ;
 }
 ```
 
-### 2. How to minimize garage collection?
+### 2. How to minimize garbage collection?
 Object Pooling -> Factory Pattern
 
 
 ## Heap vs Stack
-### 1. If a program uses the heap faster than garage collection, we need to increase the heap size.  
+### 1. If a program uses the heap faster than garbage collection, we need to increase the heap size.  
 `java -Xms1GB -Xmx4GB <class filename>`
 
 ### 2. How to dump JVM (heap overflow)
