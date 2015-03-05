@@ -282,38 +282,6 @@ Encapsulation represents a 'has a' (composition) relation.
 * composition: holding the reference of the other class within some other class.
 
 
-## Reflection
-```java
-public final Class<?> getClass();
-
-class A { f() }
-class B extends A { g() }
-class C extends B { h() }
-
-A a = new C();
-B b = (B) a;
-C c = (C) a;
-
-a.getClass() // C
-b.getClass() // C
-c.getClass() // C
-```
-```
-a.f() √ a.g() X a.h() X  
-b.f() √ b.g() √ b.h() X  
-c.f() √ c.g() √ c.h() √ 
-```
-
-### getClass()
-```java
-int[] a;
-a.getClass()	// [I
-String[][] str;
-str.getClass() 	// [[S
-```
-Array.getClass() => '[' (array) + 'I' (Base Type)
-
-
 ## The `Object` class
 * `protected Object clone() throws CloneNotSupportedException`  
 Creates and returns a copy of this object.
@@ -407,3 +375,59 @@ class AUtil {
 Benefits:
 1. Decoupling data and logic. Data bean is always bug free.
 2. No share resource => less problem in multi-threading environment.
+
+
+## The Reflection API
+Every object is either a reference or primitive type. For every type of object, the JVM instantiates an immutable instance of `java.lang.Class` which it is the entry point for all of the Reflection APIs.
+
+### Retrieving Class Objects
+1. Get from instance using `Object.getClass()`
+  * Array.getClass() => '[' (array) + 'I' (Base Type)
+
+  	```java
+	int[] a;
+	a.getClass()	// [I
+	String[][] str;
+	str.getClass() 	// [[S
+	```
+
+```java
+public final Class<?> getClass();
+
+class A { f() }
+class B extends A { g() }
+class C extends B { h() }
+
+A a = new C();
+B b = (B) a;
+C c = (C) a;
+
+a.getClass() // C
+b.getClass() // C
+c.getClass() // C
+```
+```
+a.f() √ a.g() X a.h() X  
+b.f() √ b.g() √ b.h() X  
+c.f() √ c.g() √ c.h() √ 
+```
+
+2. Get from type by appending ".class" to the name of the type.
+
+```java
+boolean b;
+Class c = b.getClass();   // compile-time error
+
+Class c = boolean.class;  // correct
+```
+
+3. Get from the fully-qualified name using `Class.forName("<class name>")`. This name can be found by class `Class.getName()`.
+
+4. Get the super class: `getSuperclass()`.
+5. Get all member classes: `getClasses()`.
+6. Get all explicitly declared member classes: `getDeclaredClasses()`.
+7. Get the Class in which there members were declared: `getDeclaringClass()`.
+  
+  * note: Anonymous Class Declarations will not have a declaring class but will have an enclosing class.
+   
+8. Get the immediately enclosing class of the class: `getEnclosingClass()`.
