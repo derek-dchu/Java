@@ -429,5 +429,24 @@ Class c = boolean.class;  // correct
 7. Get the Class in which there members were declared: `getDeclaringClass()`.
   
   * note: Anonymous Class Declarations will not have a declaring class but will have an enclosing class.
-   
+
 8. Get the immediately enclosing class of the class: `getEnclosingClass()`.
+
+### DIscovering Class Members
+#### Field
+`getDeclaredField()`: Private members
+`getField()`: Inherited members
+`getDeclaredFields()`: List of private members
+`getFields()`: List of Inherited members
+
+#### Method
+`getDeclaredMethod()`: Private members
+`getMethod()`: Inherited members
+`getDeclaredMethods()`: List of private members
+`getMethods()`: List of Inherited members
+
+#### Constructor
+`getDeclaredConstructor()`: Private constructor
+`getConstructor()`: Non-private constructor
+`getDeclaredConstructors()`: Private constructor
+`getConstructors()`: Non-private constructor
