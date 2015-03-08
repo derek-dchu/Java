@@ -87,6 +87,8 @@ If the value p being boxed is `true`, `false`, a `byte`, or a `char` in the rang
 
 
 ## Autoboxing vs Unboxing
+Occurs at compile time.
+
 ### Autoboxing (Java 5)
 Automatic conversion from primitive type to corresponding wrapper class.
 
@@ -187,7 +189,7 @@ value can not be changed.
 Benefits: Immutable object is thread-safe and commonly used in multi-threading environment.
 
 ### Final
-The value of the field cannot change.
+The modifier prohibiting value modification.
 
 
 ## Upcast vs Downcast
@@ -271,7 +273,7 @@ A separate thread with the lowest priority.
 
 ### When an object becomes eligible for Garbage Collection
 1. If it is not reachable from any live thread.
-2. If it is not reachable by any strong reference.
+2. If it is not reachable by any strong references.
 3. Cyclic dependencies are not counted as reference. e.g. A -> B, B -> A, both A and B are eligible.
 
 
