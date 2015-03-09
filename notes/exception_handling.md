@@ -3,18 +3,6 @@
 An exception is an event that occurs during the execution of a program that disrupts the normal flow of instructions.
 
 
-## How to `throw` an exception
-Throwing an exception means an method creating an exception object and handing it to the runtime system.
-
-
-## How to handle an exception
-After an method throws an exception, the runtime system will search the call stack in reverse order. When an appropriate *exception handler* is found, the runtime system passes the exception to the handler which is said to `catch` the exception.
-
-If the runtime system can not find an handler, then it will terminate.
-
-
-
-
 ## The `Throwable` Class
 It is a concrete class. 
 
@@ -41,7 +29,25 @@ Error are exceptional conditions that are external to the application, and that 
 Runtime exception are exceptional conditions that are internal to the application, and that the application usually cannot anticipate or recover from.
 
 
-## try ... catch ... finally
+## How to `throw` an exception
+Throwing an exception means an method creating an exception object and handing it to the runtime system.
+
+```java
+throw someThrowableObject;
+```
+
+
+## The Catch or Specify Requirement
+When encounter an exception, we can
+  1. catch and handle it
+  2. specify that it will be throw again.
+
+### Catching and Handling
+After an method throws an exception, the runtime system will search the call stack in reverse order. When an appropriate *exception handler* is found, the runtime system passes the exception to the handler which is said to `catch` the exception.
+
+If the runtime system can not find an handler, then it will terminate.
+
+#### try ... catch ... finally
 ```java
 try {
 	
@@ -58,7 +64,7 @@ try {
 * finally block will execute after `return` in other clauses.
 * Java 7, a single `catch` block can handle more than on type of exception, `catch (ExceptionA | ExceptionB ex)`, and `ex` is `final`.
 
-## try-with-resources
+#### try-with-resources
 A *resource* is an object that must be closed after the program is finished with it. try-with-resources statement ensures that each resource is closed at the end of the statement.
 
 ```java
