@@ -192,3 +192,35 @@ SELECT u.name FROM User as u where u.age > 30;
 
 -note: HQL does not support '*', we use 'from User' directly.
 ```
+
+**note:** The translation of HQL is independent with mapping configuration.
+
+### `load` vs `get()`
+* if we use object as the key (which is a must for composite key), then for `load()`, it will return an new object as the result, in contrast, `get()` will fill in the object and return it.
+
+### generator tag
+class:
+  1. assigned (default): assigned by user
+  2. increment: max(id)+1
+  3. sequence
+  4. foreign
+  5. native
+  6. hilo
+
+### Lazy Fetching
+```java
+class Node<E> {
+	E value;
+	Node<E> parent;
+	Set<Node<E>> children;
+}
+```
+
+By default, Hibernate will only load current object without loading any of its dependent objects (parent, children) unless we access them.
+
+* Lazy Fetching can be disable by setting `lazy="false"` for its dependent sets.
+* Lazy Fetching dependent objects can be forced to initialize by calling `Hibernate.initialize(object)`.
+
+**note:** Lazy Fetching is different from Lazy Loading. Lazy Loading will not load current object until we access it.
+
+
