@@ -223,4 +223,39 @@ By default, Hibernate will only load current object without loading any of its d
 
 **note:** Lazy Fetching is different from Lazy Loading. Lazy Loading will not load current object until we access it.
 
+### Transaction
+A: Atomicity -
+C: Consistency - 
+I: Isolation -
+D: Durability -
 
+#### Isolation Levels
+1. Read uncommitted (no lock) - may cause dirty read (read dirty data)
+2. Read committed (prevent dirty read) (default level) - affected rows are locked
+3. Repeatable Read (prevent non-repeatable read)
+4. Serializable (prevent phantom read)
+
+* dirty read: T2 update, T1 read before T2 commit. Because reading is faster than update, at some point, T1 will start reading non-updated data.
+
+#### Pessimistic locking vs Optimistic locking
+Optimistic locking: no lock, but we can add an indicator column (such as version), then we can use it to control reading without a lock.
+
+### Hibernate Session vs JPA EntityManager
+| SQL | HS | EM |  
+|-----|----|----|  
+| insert | save(obj) | persist(obj) |  
+| load an obj | load/get(<class>, id) | find(<class>, id) |  
+| update | load/get + setter | find + setter |  
+| delete | delete(obj) | remove(obj) |  
+| select | createQuery(hql) | createQuery(JPAquery) |  
+| get a result | query.list() | query.getResultList() |  
+
+
+## EJB
+EJB: Distributed System
+
+S1 -- S2 -- ... -- Sn (EJB run any of there servers)
+ \     |           /
+ 	Interface (DAO)
+ 	   | (remote)
+ 	 Client
