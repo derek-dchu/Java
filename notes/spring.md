@@ -51,11 +51,13 @@ Decoupling: decouple Data & Logic
 </bean>
 ```
 
+**note:** the class may not have a field that matches exactly the property name, but it must has a setter matching that property name (`public void set<field>`).
+
 2. Constructor Injection
 
 
 * What is method injection?
-* autowire: automatically injection other beans inside current bean
+* autowire: automatically injection other beans inside current bean (usually `ref` is better)
   1. no
   2. byName: use field name to match other beans
   3. byType: user field type to match other beans (but this cannot handle the situation that different beans have same type or subtype)
@@ -79,4 +81,43 @@ ApplicationContext (not lazy loaded) : all beans are created after `new FileSyst
 * We control lazy loading feature for both of them by setting `lazy-init="default|true|false"`.
 
 
+## AOP: Aspect Oriented Programming
+* Purpose of AOP: Build dependency among separate classes
+* Key concepts:
+  1. Advice (what)
+  2. Pointcut (where)
+  3. Advisor = Advice + Pointcut
+* Proxy Pattern
 
+
+## Cache (Spring 3.x)
+
+
+## Spring DAO
+CMP: Container-Managed Persistence
+BMP: Bean-Managed Persistence
+
+
+## Transaction Propagation
+```
+BeginTx
+	BeginTx
+		...
+	Commit
+	...
+	BeginTx
+	Commit
+Commit
+```
+
+* Reqiured:
+```
+BT 						BT
+	#do1 					#do1
+	BT 						#do2
+		#do2	=> 			#do3
+	CT 					CT
+	#do3
+CT
+```
+Any inner transaction fails will rollback the outer transaction (Default behavior of propagation)
