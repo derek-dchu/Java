@@ -70,3 +70,8 @@ A *resource* is an object that must be closed after the program is finished with
 ```java
 try ( object of class that implements `AutoCloseable`  ) { }
 ```
+
+## How to Create Exception Classes
+* expected to recover -> checked exception
+* cannot do anything to recover -> unchecked exception
+
