@@ -1,12 +1,49 @@
 # Spring
 ## Modules
-1. IoC: Inversion of Control
-2. AOP: Aspect-Oriented Programming
-3. DAO (ORM)
-4. MVC (Web)
-5. Spring Security
-6. Spring Integration (Struts2, REST, SOAP)
-7. Spring Front-end
+```
+Data Access/Integration	 				Web
+(JDBC, ORM, OXM, JMS)	 (WebSocket, Servlet, Web, Portlet)
+	Transactions					|
+			\				 		/
+AOP	Aspects	Instrumentation Messaging
+				|
+			Core Container
+				|
+			  test
+```
+
+### Core Container
+1. spring-core
+2. spring-beans
+3. spring-context
+4. spring-context-support
+5. spring-expression.
+
+### AOP and Instrumentation
+1. spring-aop
+2. spring-aspects
+3. spring-instrument
+4. spring-instrument-tomcat
+
+### Data Access/Integration
+1. spring-jdbc
+2. spring-tx
+3. spring-orm
+4. spring-oxm
+5. spring-jms
+
+### Web
+1. spring-web
+2. spring-webmvc
+3. spring-websocket
+4. spring-webmvc-portlet
+
+### Test
+1. spring-test
+
+* Spring Security
+* Spring Integration (Struts2, REST, SOAP)
+* Spring Front-end
 
 * Each of module has their own jarfiles
 
@@ -28,10 +65,77 @@ log.warm()
 log.info()
 ```
 
-## IoC ~ Dependency Injection (DI)
-Factory Pattern: id always reference an object
-Reflection: inject values into fields
-Decoupling: decouple Data & Logic
+## Inversion of Control (IoC) ~ Dependency Injection (DI)
+Objects define their dependencies only through constructor arguments, arguments to a factory method, or properties that are set on the object instance after it is constructed or returned form a factory method. The container then injects those dependencies when it creates the bean.
+
+* keywords:
+  1. Factory Pattern: id always reference an object
+  2. Reflection: inject values into fields
+  3. Decoupling: decouple Data & Logic, actual value & bean structure.
+
+### IoC Container
+`org.springframework.beans` and `org.springframework.context` are the basis for IoC container.
+
+* `BeanFactory`: deprecated
+* `org.springframework.context.ApplicationContext` represents the IoC container and is responsible for instantiating, configuring and assembling the objects.
+
+```
+-- POJOs -------------> IoC Container -> Fully configured system					
+-- config metadata -/
+```
+
+#### Configuration
+1. XML-based
+
+```xml
+<?xml ... ?>
+<beans xmlns=""
+	xmlns:xsi=""
+	xsi:schemaLocation="">
+
+	<bean id="..." class="...">
+		<!-- collaborators and configuration for this bean go here -->
+	</bean>
+
+	<!-- more bean definition -->
+<beans>
+```
+
+2. Annotation-based
+3. Java-based
+
+##### Naming beans
+Every bean has one or more identifiers. (`id` or `name`)
+Convention: alphanumeric (myBean, fooService, etc.)
+
+Alias:
+```xml
+<alias name="fromName" alias="toName"/>
+```
+
+#### Instantiating a container
+```java
+ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml"); // src is the root folder
+
+ApplicationContext context = new FileSystemXmlApplicationContext("file.xml"); // project folder is the root folder
+```
+
+Configuration metadata can be imported:
+File path is related to the definition file doing the importing.
+
+```xml
+<beans>
+	<import resource="<file xml>"/>
+</beans>
+```
+
+#### Using the container
+```java
+Bean bean = context.getBean("bean name", bean.class);
+```
+
+**note:** Ideally our application code should never use `ApplicationContext` to retrieve beans.
+
 
 ### Scope
 1. singleton (default)
@@ -41,23 +145,37 @@ Decoupling: decouple Data & Logic
 5. global session
 
 ### DI
-1. Setter Injection	(use setter to inject fields)
+#### Setter Injection	(use setter to inject fields)
 ```xml
-<bean id="<id>" class="<package.class>" scope="">
-	<property name="<field>" value="" />
-	<property name="<field>">
+<bean id="ID" class="package.class_name>" scope="">
+	<property name="field_name" value="" />
+	<property name="field_name">
 		<value>??</value>
 	</property>
+	<property name="field_name" ref="bean_id" />
 </bean>
 ```
 
 **note:** the class may not have a field that matches exactly the property name, but it must has a setter matching that property name (`public void set<field>`).
 
-2. Constructor Injection
+#### Constructor Injection
+```xml
+<bean id="ID" class="package.class_name>" scope="">
+	<constructor-arg value="" type="" />
+	<constructor-arg>
+		<ref bean="bean_id" />
+	</constructor-arg>
+</bean>
+```
 
-
+* Difference between setter Injection and constructor:
+  1. Partial dependency: setter injection only
+  2. If both injection have be defined, IoC container will use the setter injection.
+  3. Setter injection can make update to beans without create a new one.
 * What is method injection?
-* autowire: automatically injection other beans inside current bean (usually `ref` is better)
+
+#### Autowiring
+Automatically injection other beans inside current bean implicitly (usually `ref` is better)
   1. no
   2. byName: use field name to match other beans
   3. byType: user field type to match other beans (but this cannot handle the situation that different beans have same type or subtype)
@@ -121,3 +239,60 @@ BT 						BT
 CT
 ```
 Any inner transaction fails will rollback the outer transaction (Default behavior of propagation)
+
+
+
+## MVC
+1. method driven
+method return ModelAndView -> add prefix, sufferfix to generate the view.
+
+* The method can return
+  1. Model(data) and View(page) (return a `ModelAndView` object)
+  2. View only (return a String as the view name)
+  3. Model only (use `@ResponseBody`)
+
+
+```
+			@Component
+		/		|		\
+@Controller  @Service  @Repository (DAO)
+```
+
+
+## Security
+* Proxy Pattern
+* Business Delegate
+* filter
+* listener & context-param
+```
+<context-param>
+	<param-name>contextConfigLocation</param-name>
+	<param-value>
+		/WEB-INF/spring-security.xml
+	</param-value>
+</context-param>
+```
+  * By default, it uses `applicationContext.xml`
+* config file
+  1. intercept-url (pattern to apply spring security)
+
+
+### How to initialize fields without instantiate the class (e.g. for controllers).
+
+```
+Initialize a collection.
+
+<util:list id="<bean>">
+	<bean class="<class>">
+		<property name="" value="" />
+	</bean>
+<util:list>
+```
+
+
+## Quartz
+Scheduling System.
+
+
+
+
