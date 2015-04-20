@@ -144,7 +144,7 @@ Bean bean = context.getBean("bean name", bean.class);
 4. session
 5. global session
 
-### DI
+### Dependency Injection
 #### Setter Injection	(use setter to inject fields)
 ```xml
 <bean id="ID" class="package.class_name>" scope="">
@@ -161,17 +161,22 @@ Bean bean = context.getBean("bean name", bean.class);
 #### Constructor Injection
 ```xml
 <bean id="ID" class="package.class_name>" scope="">
-	<constructor-arg value="" type="" />
+	<constructor-arg type="" value=""/>
 	<constructor-arg>
 		<ref bean="bean_id" />
 	</constructor-arg>
+	<constructor-arg index="0" value=""/>
+
+	<!-- use with @ConstructorProperties({name1, name2}) for the constructor -->
+	<constructor-arg name="field_name" value=""/>
 </bean>
 ```
 
-* Difference between setter Injection and constructor:
-  1. Partial dependency: setter injection only
-  2. If both injection have be defined, IoC container will use the setter injection.
-  3. Setter injection can make update to beans without create a new one.
+* Difference between setter injection and constructor injection:
+  1. CI is good for mandatory dependencies and SI for optional dependencies.
+  2. Partial dependency: setter injection only
+  3. If both injection have be defined, IoC container will use the setter injection.
+  4. Setter injection can make update to beans without create a new one.
 * What is method injection?
 
 #### Autowiring
