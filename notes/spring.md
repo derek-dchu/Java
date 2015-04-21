@@ -137,13 +137,6 @@ Bean bean = context.getBean("bean name", bean.class);
 **note:** Ideally our application code should never use `ApplicationContext` to retrieve beans.
 
 
-### Scope
-1. singleton (default)
-2. prototype (shallow copy)
-3. request
-4. session
-5. global session
-
 ### Dependency Injection
 #### Setter Injection	(use setter to inject fields)
 ```xml
@@ -179,14 +172,35 @@ Bean bean = context.getBean("bean name", bean.class);
   4. Setter injection can make update to beans without create a new one.
 * What is method injection?
 
+#### Lazy-initialized beans
+Pre-instantiation is desirable, because errors in the configuration or surrounding environment are discovered immediately. However, we can tell the IoC container to create a bean instance when it is first requested(lazy-initialized)
+
+```
+BeanFactory	(all lazy-initialized) (mobile application)
+	^
+	|
+ApplicationContext (not lazy-initialized) : all beans are created after `new FileSystemXmlApplicationContet("<config.xml>")` (enterprise application)
+```
+
+* We control lazy loading feature for both of them by setting `<bean lazy-init="default|true|false"/>`.
+* Container level: `<beans default-lazy-init="true"/>`
+
 #### Autowiring
 Automatically injection other beans inside current bean implicitly (usually `ref` is better)
-  1. no
+  1. no: must be defined via a `ref` element.
   2. byName: use field name to match other beans
   3. byType: user field type to match other beans (but this cannot handle the situation that different beans have same type or subtype)
-  4. constructor
+  4. constructor: analogous to byType, but applies to constructor arguments.
   5. autodetect (spring 2.x, deprecated)
 
+* excluding a bean from autowiring: `<bean autowire-candidate="false"/>`.
+* container level limitation: `<beans default-autowire-candidate="a_pattern_of_bean_names"/>.
+
+#### Method Injection
+Inject a method: dynamically override the implementation of a method.
+
+* the method to be injected requires a signature of the following form:
+  `<public|protected> [abstract] <return-type> theMethodName(no-arguments);`s
 
 #### Singleton Injection
 By default Spring uses reflection to bypass private constructor and instantiate an new object. Therefore, a singleton in Spring will return different objects under scopes except singleton.
@@ -195,14 +209,19 @@ By default Spring uses reflection to bypass private constructor and instantiate 
 * Without `factory-method`, even in singleton scope, we will have two objects from a singleton. One is from reflection API, the other one is from `getInstance()`.
 
 
-## Lazy Loading
-BeanFactory	(all lazy loaded) (mobile application)
-	^
-	|
-ApplicationContext (not lazy loaded) : all beans are created after `new FileSystemXmlApplicationContet("<config.xml>")` (enterprise application)
+### Scope
+1. singleton (default): single instance per container (each definition).
+2. prototype (shallow copy): any number of instances.  
 
-* We control lazy loading feature for both of them by setting `lazy-init="default|true|false"`.
+Blow scopes are only available for a web-aware Spring `ApplicationContext` implementation.
+3. request: each HTTP request has its own instance of a bean.
+4. session: each HTTP `Session` has its own instance of a bean.
+5. global session: each global HTTP `Session` has its own instance of a bean. Typically only valid when used in a portlet context.
+6. application: each `ServletContext` has its own instance of a bean.
 
+* use the prototype for all stateful beans and the singleton for stateless beans.
+* Spring does not manage the destruction lifecycle of a prototype bean.
+* request, global session, application scopes work with Spring Web MVC `DispatcherServlet` or `DispatcherPortlet` without special setup.
 
 ## AOP: Aspect Oriented Programming
 * Purpose of AOP: Build dependency among separate classes
