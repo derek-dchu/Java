@@ -221,7 +221,9 @@ Blow scopes are only available for a web-aware Spring `ApplicationContext` imple
 
 * use the prototype for all stateful beans and the singleton for stateless beans.
 * Spring does not manage the destruction lifecycle of a prototype bean.
-* request, global session, application scopes work with Spring Web MVC `DispatcherServlet` or `DispatcherPortlet` without special setup.
+* request, session, global session, application scopes work with Spring Web MVC `DispatcherServlet` or `DispatcherPortlet` without special setup.
+* For request, session, global session scoped beans, we must inject an AOP proxy in place of them.
+
 
 ## AOP: Aspect Oriented Programming
 * Purpose of AOP: Build dependency among separate classes
