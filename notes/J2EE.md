@@ -53,7 +53,7 @@ Scope:
   2. request: all data from a form by default are in request scope. It can only exists between two pages (original and request page).
   3. session: Object -> any page for only one user.
   4. application: Object -> any page, any user (public)
-Other: response, out, pageContext, config.
+Other: response, out, pageContext, config, exception.
 
 ### JSP Tags `<% ... %>`
 1. JSP Expression: `<%= ... %>`
@@ -122,7 +122,9 @@ Bottom-up (Implementation)
 
 
 ## Struts
+```
 <form action="<name>.do"> ---> <action path="/<name>" ... />
+```
 
 ### Validation
 1. Use ValidatorForm instead of ActionForm, override validate method.
@@ -138,117 +140,7 @@ Bottom-up (Implementation)
 ForwardAction & DispatchAction
 
 
-## Hibernate
-* Each bean must has an ID for caching.
 
-### Caching
-Try to reuse the existing object in the session, in order to reduce the number of connection with database.
-
-#### First-level Caching
-Caching on Session: cache within current session.
-
-* Each object has three status in a session:
-  1. Transient: an object 
-  2. Persistent:
-  3. Detached:
-
-```java
-A a = new A(); // Transient (map doesn't has a's id)
-
-map.put(id, a) // Persistent
-
-map.put(id, null) // Detached (map still has a's id)
-
-map.put(id, a) // Persistent
-
-load(a): 
-	if map.contains(id):
-		return map.get(id)
-	else:
-		return map.put(id, a)
-```
-
-* `session.evict(object)` changes the object from persistent to detached.
-* `session.merge(object)` changes the object from detached to persistent of current session.
-* Change non-id fields of persistent object, database will be updated after the transaction.
-* Change id of persistent object, database will insert an new record with that id after the transaction.
-
-#### Second-level Caching
-Caching on SessionFactory: shallow copies will be shared across different sessions.
-
-**note:** Each level of Caching can only store objects with unique ID.
-
-### HQL vs SQL
-```
-- SQL:
-SELECT s.name FROM Sample s WHERE s.age > 30;
-		 |			 |    |			|
-	   column      table alias    column
-
-- HQL:
-SELECT u.name FROM User as u where u.age > 30;
-		 |			 |     |		|
-       field      class   obj      field
-
--note: HQL does not support '*', we use 'from User' directly.
-```
-
-**note:** The translation of HQL is independent with mapping configuration.
-
-### `load` vs `get()`
-* if we use object as the key (which is a must for composite key), then for `load()`, it will return an new object as the result, in contrast, `get()` will fill in the object and return it.
-
-### generator tag
-class:
-  1. assigned (default): assigned by user
-  2. increment: max(id)+1
-  3. sequence
-  4. foreign
-  5. native
-  6. hilo
-
-### Lazy Fetching
-```java
-class Node<E> {
-	E value;
-	Node<E> parent;
-	Set<Node<E>> children;
-}
-```
-
-By default, Hibernate will only load current object without loading any of its dependent objects (parent, children) unless we access them.
-
-* Lazy Fetching can be disable by setting `lazy="false"` for its dependent sets.
-* Lazy Fetching dependent objects can be forced to initialize by calling `Hibernate.initialize(object)`.
-
-**note:** Lazy Fetching is different from Lazy Loading. Lazy Loading will not load current object until we access it.
-
-### Transaction
-A: Atomicity -
-C: Consistency - 
-I: Isolation -
-D: Durability -
-
-#### Isolation Levels
-1. Read uncommitted (no lock) - may cause dirty read (read dirty data)
-2. Read committed (prevent dirty read) (default level) - affected rows are locked
-3. Repeatable Read (prevent non-repeatable read)
-4. Serializable (prevent phantom read)
-
-* dirty read: T2 update, T1 read before T2 commit. Because reading is faster than update, at some point, T1 will start reading non-updated data.
-
-#### Pessimistic locking vs Optimistic locking
-Optimistic locking: no lock, but we can add an indicator column (such as version), then we can use it to control reading without a lock.
-
-### Hibernate Session vs JPA EntityManager
-| SQL | HS | EM |  
-|-----|----|----|  
-| insert | save(obj) | persist(obj) |  
-| load an obj | load/get(<class>, id) | find(<class>, id) |  
-| update | load/get + setter | find + setter |  
-| delete | delete(obj) | remove(obj) |  
-| select | createQuery(hql) | createQuery(JPAquery) |  
-| get a result | query.list() | query.getResultList() |  
 
 
 ## EJB
@@ -259,3 +151,72 @@ S1 -- S2 -- ... -- Sn (EJB run any of there servers)
  	Interface (DAO)
  	   | (remote)
  	 Client
+
+
+
+## Security
+### Authentication
+```
+web.xml
+
+<login-config></login-config>
+```
+
+### Authority (Access Control)
+```
+web.xml
+
+<security-constraint></security-constraint>
+```
+
+
+## JSF: Java Server Face
+
+
+## SSH: Struts ~ Spring ~ Hibernate
+Version #1: Struts 1.x ~ Spring 2.x ~ Hibernate 3.2
+Version #2: Struts 2.x ~ Spring 3.x ~ Hibernate 3.5
+Version #3: Spring MVC ~ Spring ~ Hibernate
+
+## Java Naming and Directory Interface (JNDI)
+An API to access the directory and naming services.
+     
+### Naming Concepts
+Naming service a fundamental facility in any computation system which is mapping people friendly names to objects.
+
+### Context
+A *context* is a set of name-to-object bindings.
+
+### Naming Systems and Namespaces
+A naming system is a connected set of contexts of the same and provides a common set of operations.
+
+A *namespace* is the set of all possible names in a naming system.
+
+
+### Directory Concepts
+Many naming services are extended with a *directory service*. A *directory service* is a service that provides operations for creating, adding, removing, and modifying the attributes associated with objects in a directory.
+
+directory service = naming service + objects containing attributes.
+
+### `javax.naming` Package
+#### `Context` Interface
+1. `Object lookup(Name name)`: lookup the object bound to a name.
+2. `listBindings()`: an enumeration of name-to-object bindings.
+3. `list()`: an enumeration of names containing an object's name and the name of the object's class.
+4. `Name` interface: represents a generic name.
+5. `Reference` class: represents reference.
+
+#### `InitialContext` Class
+In the JNDI, all naming and directory operations are performed relative to a context which is an `InitialContext` object.
+
+#### Exceptions
+`NamingException`: Root of the class hierarchy for exceptions in JNDI.
+
+### `javax.naming.directory` Package
+#### `DirContext` Interface
+1. `getAttributes()`: retrieve the attributes associated with a directory entry.
+2. `modifyAttributes()`: add, replace, or remove attributes and/or attributes value.
+3. `search()`: content based searching of the directory.
+
+### `javax.naming.ldap` Package
+
