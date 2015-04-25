@@ -17,6 +17,8 @@
 | boolean | no precisely defined | true/false | false |  
 | char | 16-bit | '\u0000' ~ '\uffff' | '\u0000' |  
 
+* Integer divided by zero throws `java.lang.ArithmeticExcaption`, while double divided by zero integer is Infinity, or divided by double zero is NaN, and both don't throw any exception.
+
 **Note:** local variables never assigned a default value. Accessing an uninitialized local variable will result in compile-time error.
 
 
@@ -35,13 +37,18 @@ int [] anArray = {100, 200};
 ```
 
 
+## Operations
+### Logical and Bitwise
+* Priority: `!` > `&&` > `||`.
+* `&`, `|`: both sides will be checked.
+
 ## Enum Types
 **Note:** all enums implicitly extend `java.lang.Enum`, therefore it cannot extend anything else.
 
 
 ## Control Flow
 ### `switch` statement
-`switch` works with `byte`, `short`, `char`, `int`, `Enum`, `String` (Java 7), `Character, `Short, `Byte`, `Integer`.
+`switch` works with `byte`, `short`, `char`, `int`, `Enum`, `Character, `Short, `Byte`, `Integer`, `String` (Java 7).
 
 **Note:** if expression in any switch statement is `null`, then a `NullPointerException` is thrown.
 
@@ -83,7 +90,7 @@ There is a string pool in stack which contains non-duplicated strings. Those str
 
 
 ## Constant pool
-If the value p being boxed is `true`, `false`, a `byte`, or a `char` in the range `\u0000` to `\u007f`, or an `int` or `short` number between `-128` and `127` (inclusive), then let `r1` and `r2` be the results of any two boxing conversions of p. It is always the case that `r1 == r2`.
+If the value p being boxed is `true`, `false`, a `byte`, or a `char` in the range `\u0000` to `\u007f`, or an `int` or `short` number between -128 and 127 (inclusive), then let `r1` and `r2` be the results of any two boxing conversions of p. It is always the case that `r1 == r2`.
 
 
 ## Autoboxing vs Unboxing
@@ -264,17 +271,50 @@ A callback method that may be invoked by garbage collection, which performs like
 
 
 ## Garbage Collection
-A separate thread with the lowest priority.
+Garbage Collection is the process of looking at heap memory, identifying which objects are in use and which are not, and deleting the unused objects.
 
+* Garbage Collection is performed by a daemon thread called Garbage Collector(GC) with the lowest priority.
+* GC calls the finalize() method before object is garbage collected once and only once.
 * How to invoke garbage collection
   1. `System.gc();`
   2. `Runtime.getRuntime().gc();`
-* A lost reference might be obtained back.
+* GC cannot be forced to execute.
+* A lost reference might be obtained back (object resurrection) and the object will not be GCed any more which might result memory leak.
+* GC only collects those objects that are created by `new` keyword.
 
 ### When an object becomes eligible for Garbage Collection
 1. If it is not reachable from any live thread.
 2. If it is not reachable by any strong references.
 3. Cyclic dependencies are not counted as reference. e.g. A -> B, B -> A, both A and B are eligible.
+
+### Questions:
+#### 1. Create an object that can not be garbage collected
+```java
+class A {
+  static final Object obj = ... ;
+}
+```
+
+#### 2. How to minimize garbage collection?
+Object Pooling, i.e. Factory Pattern.
+
+
+## Reference Types
+### Strong References
+Regular object reference: not eligible for GC.
+
+### Weak Reference
+`WeakReference<Cacheable> weakData = new WeakReference<Cacheable>(data);`
+
+Will be collected at the next GC cycle. A example of it is `WeakHashMap`.
+
+### Soft Reference
+Like a weak reference but it is less likely to be GC. Soft references are cleared at the discretion of the garbage collector in response to memory demand.
+
+### Phantom Reference
+* Cannot be used to retrieve the object.
+* It gets enqueued into a `ReferenceQueue` when the object is physically removed.
+* It is the only way to determine exactly when an object was removed from memory.
 
 
 ## Multi-threading
@@ -303,19 +343,24 @@ a,b,c getClass() // C
 If an object is `instanceof` of class, that means the object can do either upcasting or downcasting to that class.
 
 
-## Serialiable
+## Serializable
 ### What is a serialiable object?
 A serialiable object can be converted into a binary string, so that it can be transfered via Internet or saved to a file.
 
 ### Serialization vs Deserialization
-Serialization: convert a serialiable object into abinary string.
+Serialization: convert a serializable object into a binary string.
 
 * For an class, each level of fields need to be serializable (regarding `transient`) to perform serialization.
-* For an class, it has at less one superclass that is serializable to perform serialization.
+* For an class, it must has at less one superclass that is serializable to perform serialization.
 
 Deserialization: convert the binary string back to an object.
 
 * Deserialzation will construct the object directly without calling its constructor. However, if the class is subclass, then it will call constructors of its superclass which are not serializable.
+
+### Override Default Serialization
+We can provide following method to override default serialization:
+  1. `private void writeObject(java.io.ObjectOutputStream out) throws IOException`
+  2. `private void readObject(java.io.ObjectInputputStream in) throws IOException`
 
 ### What is the purpose of `SerialVersionUID`?
 It is a `private static final long` variable. It is a class uuid that generates serialization and deserialization perform on the same class.
@@ -332,11 +377,88 @@ Make a field non-serialiable in a serialiable class.
 
 
 ## Externalizable
-It is a subinferface of Serialiable which contains two methods: `readExternal()`, `writeExternal()`.
+It is a subinferface of Serialiable which contains two methods: 
+  1. `void readExternal(ObjectInput in)`
+  2. `void writeExternal(ObjectOutput out)`.
 
 Add customization to serialization. (e.g. encryption)
 
 * `transient` has no effect in externalizable object.
 * externalizable class will call default constructor to deserialize.
+
+
+## Annotations
+Annotations, a form of metadata, provide data about a program that is not part of the program itself.
+
+* if there is just one element named `value`, then the name can be omitted.
+* Java 8 supports repeating annotations (applying same types of annotations)
+* Java 8 supports **type annotation**.
+* annotation is form of interface.
+
+### Declaring an Annotation Type
+```java
+@interface Name {
+	String firstName();
+	String lastName() default "N/A";
+}
+```
+
+## Platform Environment
+### Properties
+* extends Hashtable -> Dictionary
+* Life Cycle:
+  1. Starting Up
+  ```java
+  // create and load default properties
+  Properties defaultProps = new Properties();
+  FileInputStream in = new FileInputStream("defaultProperties");
+  defaultProps.load(in);
+  in.close();
+
+  // create application properties with default
+  Properties applicationProps = new Properties(defaultProps);
+
+  // load properties from last invocation
+  in = new FileInputStream("appProperties");
+  applicationProps.load(in);
+  in.close();
+  ```
+
+  2. Running
+    1. `contains(Object value)`, `contains(Object key)`
+    2. `getProperty(String key)`, `getProperty(String key, String default)`
+    3. `list(PrintStream s)`, `list(PrintWriter w)`
+    4. `keys()`: keys for itself, `propertyNames()`: keys for itself and default(inherited keys). Both returns `Enumeration`
+    5. `stringPropertyNames()`: returns names of properties where both key and value are strings. The `Set` object is not backed by the `Properties` object.
+    6. `size()`
+    7. `setProperty(String key, String value)`
+    8. `remove(Object key)`
+
+  3. Exiting
+  ```java
+  // save application properties
+  FileOutputStream out = new FileOutputStream("appProperties");
+  applicationProps.store(out, "---No Comment---");
+  out.close();
+  ```
+
+### Environment Variables
+* `System.getenv()` returns a read-only `Map` where the map keys are the environment variable names, and values are the environment variable values.
+* `System.getenv(String varName)` returns the value for environment variable named varName or returns null if it is not defined. **Note:** To maximize portability, never refer to an environment variable when the same value is available in a system property.
+* Create a new process: `ProcessBuilder`.
+
+### System Properties
+`System` class maintains a Properties object that describes the configuration of the current working environment.
+
+* The runtime system re-initializes the system properties each time its starts up. That is, changing the system properties within an application will not affect future invocations of the Java interpreter for this or any other application.
+
+
+## CLASSPATH variable
+The CLASSPATH variable is one way to tell applications, including the JDK tools, where to look for user classes.
+
+* default value: "."
+* Using `-cp`, `-classpath` command line switch to override default value for each application without affecting other applications.
+* We can also set CLASSPATH directly.
+
 
 
