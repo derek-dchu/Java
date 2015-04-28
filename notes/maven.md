@@ -61,7 +61,7 @@ $: archetype:generate
 * clean: remove all jobs have been done. (e.g. remove target folder)
 
 #### Maven Plugins
-We provide plugin block in `pom.xml` to overwrite default configuration.
+* We provide plugin block in `pom.xml` to overwrite default configuration.
 
 ```xml
 pom.xml
@@ -76,6 +76,11 @@ pom.xml
 		</plugin>
 	</plugins>
 </build>
+```
+
+* To use plugin
+```shell
+$ mvn plugin_name:supported_command
 ```
 
 ##### Maven-compiler-plugin
