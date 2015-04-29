@@ -230,12 +230,14 @@ It runs normally. If a class has the same name as Java file name, it is default 
 * main function can be overloaded.
 * main function can be final.
 
+
 ## Import
 * package/class can imported multiple times but JVM will load only once.
 * static import: access static method without qualify it by the class name.
 
 
 ## final, finally, finalize
+### final
 Initialize final variable
 ```java
 // 1
@@ -259,15 +261,15 @@ class A {
 ```
 Only 1 & 2 can be used. A final variable that is not initialized at the time of declaration which can be initialize only in constructor.
 
-* final object still can change value.
-* final method cannot be override.
+* final object still can change value. (e.g. Array)
+* final method cannot be overridden.
 * final class cannot be inherited.
 
-### finally
-* finally block will not be executed if program exits `system.exit()` or fatal error (e.g. OutOfMemoryError).
+### finally {}
+finally block will not be executed if program exits `system.exit()` or fatal error (e.g. OutOfMemoryError).
 
 ### finalize()
-A callback method that may be invoked by garbage collection, which performs like a destructor in C++. It can be override.
+finalize is a method can be called by the garbage collector on an object when garbage collection determines that there are no more references to the object. It performs like a destructor in C++. It can be override.
 
 
 ## Garbage Collection
@@ -287,6 +289,30 @@ Garbage Collection is the process of looking at heap memory, identifying which o
 2. If it is not reachable by any strong references.
 3. Cyclic dependencies are not counted as reference. e.g. A -> B, B -> A, both A and B are eligible.
 
+### Garbage Collection Procedures
+Step 1: Marking
+Scan memory to find unreferenced objects.
+
+Step 2: Normal Deletion
+The memory allocator removes unreferenced objects and holds references to blocks of free space.
+
+Step 2a: Deletion with Compacting
+To further improve performance, in addition to deleting unreferenced objects, you can also compact the remaining referenced objects. By moving referenced object together, this makes new memory allocation much easier and faster.
+
+### JVM Generations
+THe heap is broken up into smaller parts: Young, Tenured, and Permanent Generation.
+
+Young Generation: all new objects are allocated and aged. When it fills up, this causes a *minor garbage collection*.
+
+**note:** Stop the World Event: all minor garbage collections are always "Stop the World" events, which means all application threads are stopped until the operation completes.
+
+Old Generation: when a object in Young generation meets a threshold age, it will be removed to here. However, if a object can not be allocated in Eden space even after minor garbage collection, it will be allocated in here. When it fills up, this causes a *
+major garbage collection*.
+
+**note:** Major garbage collection are also Stop the World events. Often it is much slower and should be minimized.
+
+Permanent generation: contains metadata required by the JVM to describe the classes and methods used in the application. The permanent generation is populated by the JVM at runtime based on classes in use by the application. In addition, Java SE library classes and methods may be stored here. Classes may get collected (unloaded) if the JVM finds they are no longer needed and space may be needed for other classes. The permanent generation is included in a full garbage collection.
+
 ### Questions:
 #### 1. Create an object that can not be garbage collected
 ```java
@@ -303,15 +329,15 @@ Object Pooling, i.e. Factory Pattern.
 ### Strong References
 Regular object reference: not eligible for GC.
 
-### Weak Reference
+### Weak Reference (`java.lang.ref.WeakReference<T>`)
 `WeakReference<Cacheable> weakData = new WeakReference<Cacheable>(data);`
 
 Will be collected at the next GC cycle. A example of it is `WeakHashMap`.
 
-### Soft Reference
+### Soft Reference (`java.lang.ref.SoftReference<T>`)
 Like a weak reference but it is less likely to be GC. Soft references are cleared at the discretion of the garbage collector in response to memory demand.
 
-### Phantom Reference
+### Phantom Reference (`java.lang.ref.Phantom<T>`)
 * Cannot be used to retrieve the object.
 * It gets enqueued into a `ReferenceQueue` when the object is physically removed.
 * It is the only way to determine exactly when an object was removed from memory.
@@ -347,44 +373,60 @@ If an object is `instanceof` of class, that means the object can do either upcas
 ### What is a serialiable object?
 A serialiable object can be converted into a binary string, so that it can be transfered via Internet or saved to a file.
 
+And it is done by `ObjectOutputStream.writeObject(obj)` and `ObjectOutputStream.readObject()`.
+
 ### Serialization vs Deserialization
-Serialization: convert a serializable object into a binary string.
+Serialization: convert a serializable object into a binary stream which can be persisted into disk or sent over network to any other running JVM.
 
 * For an class, each level of fields need to be serializable (regarding `transient`) to perform serialization.
 * For an class, it must has at less one superclass that is serializable to perform serialization.
 
-Deserialization: convert the binary string back to an object.
+Deserialization: the reverse process of serialization.
 
-* Deserialzation will construct the object directly without calling its constructor. However, if the class is subclass, then it will call constructors of its superclass which are not serializable.
+* Deserialization will construct the object directly without calling its constructor. However, if the class is subclass, then it will call constructors of its superclass which are not serializable.
 
 ### Override Default Serialization
 We can provide following method to override default serialization:
   1. `private void writeObject(java.io.ObjectOutputStream out) throws IOException`
   2. `private void readObject(java.io.ObjectInputputStream in) throws IOException`
 
+And why we want to override it?
+Because if super class become serializable, we can throw `NotSerializableException` to prevent current class from serialization.
+
 ### What is the purpose of `SerialVersionUID`?
-It is a `private static final long` variable. It is a class uuid that generates serialization and deserialization perform on the same class.
+It is a `private static final long` variable. It is a class uuid that guarantees serialization and deserialization are performed on the same class.
+
+If deserialize an object with a different `SerialVersionUID`, Java Serialization API will throw `java.io.InvalidClassException`.
+
+**note:** If `SerialVersionUID` is not provided, normally system will use hashCode instead. 
 
 ### `transient` keyword
 Make a field non-serialiable in a serialiable class.
 
 * We can put `transient` in any class.
 * We can put `transient` in any field.
-* Statics cannot be serialize, because it is implicitly `transient`.
+* Static fields cannot be serialize, because it is implicitly `transient`.
 
 ### Create a deep copy using serializable
 **note:** If an object implements serializable at each level, then deep copy of the object can be made via serializable.
 
+### What will happen if one of the members in the class doesn't implement Serializable interface?
+Throws `NotSerializableException` at runtime.
+
 
 ## Externalizable
-It is a subinferface of Serialiable which contains two methods: 
+It is a subinterface of Serialiable which contains two methods: 
   1. `void readExternal(ObjectInput in)`
   2. `void writeExternal(ObjectOutput out)`.
 
-Add customization to serialization. (e.g. encryption)
+  **note:** `readExternal` and `writeExternal` supersede any specific implementation of `writeObject` and `readObject` methods.
+
+It provides complete control on format and content of Serialization process to application which can be leverage to increase performance and speed of serialization process. (e.g. encryption)
+
+However, it is not flexible due to the complete responsibility to control serialization when we change the class definition.
 
 * `transient` has no effect in externalizable object.
-* externalizable class will call default constructor to deserialize.
+* externalizable class will only invoke default constructor of the object (no invocation of superclass constructors) to deserialize.
 
 
 ## Annotations
