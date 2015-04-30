@@ -1,4 +1,4 @@
-package gof;
+package gof.Singleton;
 
 public enum EnumSingleton {
     INSTANCE;
