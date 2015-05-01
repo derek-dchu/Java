@@ -64,6 +64,7 @@ Collection<Type> noDups = new LinkedHashSet<Type>(c);
 Ordered collection (sequential)
 
 `get(int index)`
+`set(int index, E element)`
 
 ### ArrayList
 Use array as internal data structure.
@@ -71,7 +72,7 @@ Use array as internal data structure.
 * insert / delete: O(n)
 
 * It is more suitable for stack
-* Stack `has a` ArrayList (Adepter)
+* Stack *has a* ArrayList (Adepter)
 
 ### LinkedList
 Use doubly-linked list as internal data structure
@@ -79,7 +80,7 @@ Use doubly-linked list as internal data structure
 * insert / delete: O(1)
 
 * It is more suitable for queue
-* LinkedList implements Queue, it `is a` Queue (Facade)
+* LinkedList implements Queue, it *is a* Queue (Facade)
 
 ### Why LinkedList is still better than ArrayList in insert / delete even with a O(n) lookup time.
 Because reading is much faster writing, in other words, r/w : 1/n is worst than r/w : n/1.
@@ -124,7 +125,7 @@ Two forms of methods:
 
 
 ## Map
-* no duplicate keys, each key can map to at most on value.
+* no duplicate keys, each key can map to at most on one value.
 
 ### TreeMap
 sorted key.
@@ -137,8 +138,8 @@ sorted key.
 | Allows null key<br> (only one) | Yes | No | No |  
 | Iterator | fail-fast | fail-fast | fail-safe |  
 
-* Why ConcurrentHashMap has better performance than Hashtable.
-Because Hashtable is one lock for entire table, while concurrentHashMap has 16 blocks, each of which has a lock.
+* Why ConcurrentHashMap has better performance than Hashtable?
+Because Hashtable is one lock for entire table, while concurrentHashMap has 16 segments as a hash table array, each of which has a lock.
 
 ### Set vs Map
 keySet of a Map is the same type of Set
@@ -225,15 +226,30 @@ with additional `hasPrevious()`, `previous()`, 'set()', 'add()'.
 
 * backward iteration
 ```java
-for (LIstIterator<Type> it = list.Iterator(list.size()); it.hasPrevious(); ) {
+for (ListIterator<Type> it = list.Iterator(list.size()); it.hasPrevious(); ) {
 	Type t = it.previous();
 }
 ```
 
-#### fail-fast Iterator
-If the collection is structurally modified at any time after the iterator is created, in any way except through the iterator's own methods, the iterator will throw a `ConcurrentModificationException`.
+#### Fail-Fast Iterator
+For a fail-fast iterator, after the creation of it, 
+if the collection is structurally modified (insert, delete, update) at any time, in any way (other methods, other threads) except through iterator's `remove()` method, it will throw a `ConcurrentModificationException`.
 
-**Note:** fail-fast behavior of an iterator cannot be guaranteed. This behavior *should be used only to detect bugs*.
+**note:** Internally, the data structure maintains an `mods` flag.
+**note:** Fail-fast behavior of an iterator cannot be guaranteed. This behavior *should be used only to detect bugs*.
+
+#### Fail-Safe Iterator
+Iterator first make a copy of the internal data structure and then iterates on copied one. The iterator will not reflect additions, removals, or changes to the collection since the iterator was created.
+
+**note:** Element-changing operations on iterators themselves (remove(), set(), and add()) are not supported. These methods throw `UnsupportedOperationException`.
+
+|  | Fail Fast Iterator | Fail Safe Iterator |  
+|--|--------------------|--------------------|  
+| Throw<br> ConcurrentModification<br> Exception<br> | Yes | No |  
+| Clone | object | No | Yes |  
+| Memory Overhead | No | Yes |  
+| Element-changing operations | Yes | No |  
+| Examples | HashMap,Vector,ArrayList,HashSet |  CopyOnWriteArrayList,ConcurrentHashMap |  
 
 ### Enumeration
 ```
@@ -247,6 +263,8 @@ public interface Enumeration<V> {
 `{NAME}	synchronized{NAME} (NAME collection);`  
 NAME: Collection, List, Set, Map, SortedSet, SortedMap
 
+This method returns a SynchronizedCollection<E> which contains an `final Object mutex` and wraps almost all functions in a `synchronized(mutex) { ... }` block in addition to the original Collection.
+
 ```java
 List<V> list = new ArrayList<V>();
 List<V> list2 = Collections.synchronizedList(list);
@@ -254,7 +272,7 @@ List<V> list2 = Collections.synchronizedList(list);
 list != list2
 ```
 
-**note:** synchronizedList is still better than vector, because synchronized verison allows multi-thread reading. Vector only allows single thread access.
+**note:** synchronizedList is still better than vector, because synchronized version allows multi-thread reading. Vector only allows single thread access.
 
 ### How to make a collection read-only
 `{NAME} unmodifiable{NAME} (NAME collection);`  
